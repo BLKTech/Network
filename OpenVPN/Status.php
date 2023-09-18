@@ -14,8 +14,9 @@
  */
 
 namespace BLKTech\Network\OpenVPN;
+
 use BLKTech\DataType\Path;
-        
+
 /**
  *
  * @author TheKito < blankitoracing@gmail.com >
@@ -25,7 +26,7 @@ class Status
 {
     private static $headersClients = array('Common Name', 'Real Address', 'Bytes Received', 'Bytes Sent', 'Connected Since');
     private static $headersRouting = array('Virtual Address', 'Common Name', 'Real Address', 'Last Ref');
-    
+
     public static function getStatus()
     {
         return new Status(Path::getPathFromString('/var/log/openvpn-status.log'));
@@ -34,21 +35,22 @@ class Status
 
     private $statusFilePath;
     private $lastRead = 0;
-    
+
     private $clients = array();
     private $routes = array();
     private $lines = array();
-    
-    public function __construct(Path $statusFilePath) 
+
+    public function __construct(Path $statusFilePath)
     {
         $this->statusFilePath = $statusFilePath;
     }
-    
+
     private function parseFile()
     {
-        if(filemtime($this->statusFilePath) <= $this->lastRead)
+        if(filemtime($this->statusFilePath) <= $this->lastRead) {
             return;
-        
+        }
+
         $this->clients = array();
         $this->routes = array();
         $this->lines = array();
@@ -58,42 +60,39 @@ class Status
         $clientsSection = false;
         $routingSection = false;
 
-        while(!$reader->eof())
-        {
+        while(!$reader->eof()) {
             $line = $reader->readLine();
             $line = trim(str_replace("\n", '', str_replace("\r", '', $line)));
-            $line = explode(',', $line);                
-            foreach($line as $index => $value)                
+            $line = explode(',', $line);
+            foreach($line as $index => $value) {
                 $line[$index] = trim($value);
+            }
 
-            if(self::lineIsHeader(self::$headersClients, $line))
-            {
+            if(self::lineIsHeader(self::$headersClients, $line)) {
                 $clientsSection = true;
                 $routingSection = false;
-            }
-            else if(self::lineIsHeader(self::$headersRouting, $line))
-            {
+            } elseif(self::lineIsHeader(self::$headersRouting, $line)) {
                 $clientsSection = false;
                 $routingSection = true;
-            }
-            elseif($clientsSection && count($line)==count(self::$headersClients))                
-                $this->clients[] = array_combine(self::$headersClients, $line);                
-            elseif($routingSection && count($line)==count(self::$headersRouting))                
-                $this->routes[] = array_combine(self::$headersRouting, $line);                                
-            else
+            } elseif($clientsSection && count($line)==count(self::$headersClients)) {
+                $this->clients[] = array_combine(self::$headersClients, $line);
+            } elseif($routingSection && count($line)==count(self::$headersRouting)) {
+                $this->routes[] = array_combine(self::$headersRouting, $line);
+            } else {
                 $this->lines[] = $line;
+            }
         }
 
         unset($reader);
-            
-        
-        
+
+
+
     }
-    
-    private static function lineIsHeader($headerArray,$lineArray)
+
+    private static function lineIsHeader($headerArray, $lineArray)
     {
         return strtolower(preg_replace("/[^A-Za-z0-9]/", '', implode('', $headerArray))) == strtolower(preg_replace("/[^A-Za-z0-9]/", '', implode('', $lineArray)));
     }
 
-    
+
 }

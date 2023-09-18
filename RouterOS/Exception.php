@@ -19,7 +19,7 @@ namespace BLKTech\Network\RouterOS;
  *
  * @author TheKito < blankitoracing@gmail.com >
  */
- 
-class Exception extends \BLKTech\Network\Exception {
 
+class Exception extends \BLKTech\Network\Exception
+{
 }
