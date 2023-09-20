@@ -74,9 +74,9 @@ class Status
             } elseif(self::lineIsHeader(self::$headersRouting, $line)) {
                 $clientsSection = false;
                 $routingSection = true;
-            } elseif($clientsSection && count($line)==count(self::$headersClients)) {
+            } elseif($clientsSection && count($line) == count(self::$headersClients)) {
                 $this->clients[] = array_combine(self::$headersClients, $line);
-            } elseif($routingSection && count($line)==count(self::$headersRouting)) {
+            } elseif($routingSection && count($line) == count(self::$headersRouting)) {
                 $this->routes[] = array_combine(self::$headersRouting, $line);
             } else {
                 $this->lines[] = $line;
